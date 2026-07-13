@@ -1,0 +1,33 @@
+name: News digest
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Restore dedup database
+        uses: actions/cache@v4
+        with:
+          path: data/app.db
+          key: app-db-${{ github.run_id }}
+          restore-keys: |
+            app-db-
+
+      - run: npm ci
+
+      - run: node index.js
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SHEET_CSV_URL: ${{ secrets.SHEET_CSV_URL }}
