@@ -6,7 +6,7 @@ test('summarize returns trimmed text from Gemini response', async () => {
   const fakeAi = {
     models: {
       generateContent: async ({ model, contents }) => {
-        assert.equal(model, 'gemini-2.5-flash');
+        assert.equal(model, 'gemini-flash-latest');
         assert.match(contents, /Tiêu đề: Giá vàng tăng/);
         return { text: '  Giá vàng tăng mạnh hôm nay.  ' };
       },

@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 
-const MODEL = 'gemini-2.5-flash';
+const MODEL = 'gemini-flash-latest';
 
 export function createSummarizer(apiKey, ai = new GoogleGenAI({ apiKey })) {
   return {
