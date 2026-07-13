@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { loadConfig } from './src/config.js';
 import { fetchSources } from './src/sources.js';
 import { fetchFeed } from './src/feeds.js';
