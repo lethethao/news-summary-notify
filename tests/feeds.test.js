@@ -34,3 +34,29 @@ test('fetchFeed normalizes items from an injected parser and drops items with no
   const items = await fetchFeed('https://example.com/rss', fakeParser);
   assert.deepEqual(items, [{ id: 'a', title: 'A', link: 'https://example.com/a', snippet: 'a' }]);
 });
+
+test('fetchFeed retries transient failures and succeeds once the parser recovers', async () => {
+  let calls = 0;
+  const fakeParser = {
+    parseURL: async () => {
+      calls += 1;
+      if (calls < 3) throw new Error('Status code 500');
+      return { items: [{ guid: 'a', link: 'https://example.com/a', title: 'A', contentSnippet: 'a' }] };
+    },
+  };
+  const items = await fetchFeed('https://example.com/rss', fakeParser, 3, 1);
+  assert.equal(calls, 3);
+  assert.deepEqual(items, [{ id: 'a', title: 'A', link: 'https://example.com/a', snippet: 'a' }]);
+});
+
+test('fetchFeed throws the last error once retries are exhausted', async () => {
+  let calls = 0;
+  const fakeParser = {
+    parseURL: async () => {
+      calls += 1;
+      throw new Error('Status code 500');
+    },
+  };
+  await assert.rejects(() => fetchFeed('https://example.com/rss', fakeParser, 3, 1), /Status code 500/);
+  assert.equal(calls, 3);
+});
