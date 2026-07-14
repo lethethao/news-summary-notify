@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { loadConfig } from './src/config.js';
 import { fetchSources } from './src/sources.js';
 import { fetchFeed } from './src/feeds.js';
+import { fetchYoutubeChannelFeed } from './src/youtubeFeed.js';
 import { createDb } from './src/db.js';
 import { fetchTranscriptText } from './src/youtube.js';
 import { createSummarizer } from './src/summarizer.js';
@@ -40,7 +41,9 @@ async function main() {
   for (const source of sources) {
     let feedItems;
     try {
-      feedItems = await fetchFeed(source.url);
+      feedItems = source.type === 'youtube'
+        ? await fetchYoutubeChannelFeed(source.url, config.youtubeApiKey)
+        : await fetchFeed(source.url);
     } catch (err) {
       console.error(`Bỏ qua nguồn "${source.name}" (${source.url}): ${err.message}`);
       continue;

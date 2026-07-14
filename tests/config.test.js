@@ -8,12 +8,14 @@ test('loadConfig returns all values when env is complete', () => {
     TELEGRAM_CHAT_ID: 'chat-id',
     GEMINI_API_KEY: 'gemini-key',
     SHEET_CSV_URL: 'https://example.com/sheet.csv',
+    YOUTUBE_API_KEY: 'youtube-key',
   };
   const config = loadConfig(env);
   assert.equal(config.telegramBotToken, 'bot-token');
   assert.equal(config.telegramChatId, 'chat-id');
   assert.equal(config.geminiApiKey, 'gemini-key');
   assert.equal(config.sheetCsvUrl, 'https://example.com/sheet.csv');
+  assert.equal(config.youtubeApiKey, 'youtube-key');
   assert.ok(config.dbPath.endsWith('data/app.db'));
 });
 
@@ -23,6 +25,7 @@ test('loadConfig uses DB_PATH override when set', () => {
     TELEGRAM_CHAT_ID: 'chat-id',
     GEMINI_API_KEY: 'gemini-key',
     SHEET_CSV_URL: 'https://example.com/sheet.csv',
+    YOUTUBE_API_KEY: 'youtube-key',
     DB_PATH: '/tmp/custom.db',
   };
   const config = loadConfig(env);
@@ -37,7 +40,7 @@ test('loadConfig throws ConfigError listing missing keys', () => {
       assert.ok(err instanceof ConfigError);
       assert.deepEqual(
         err.missingKeys.sort(),
-        ['GEMINI_API_KEY', 'SHEET_CSV_URL', 'TELEGRAM_CHAT_ID'].sort()
+        ['GEMINI_API_KEY', 'SHEET_CSV_URL', 'TELEGRAM_CHAT_ID', 'YOUTUBE_API_KEY'].sort()
       );
       return true;
     }
