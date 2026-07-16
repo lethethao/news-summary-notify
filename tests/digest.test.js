@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildDigestText, splitDigestMessages } from '../src/digest.js';
+import { buildDigestText, splitDigestMessages, escapeHtml } from '../src/digest.js';
 
 test('buildDigestText builds header and one HTML link line per item', () => {
   const items = [
@@ -60,4 +60,8 @@ test('splitDigestMessages splits on line boundaries without exceeding the limit'
   for (const chunk of chunks) {
     assert.ok(chunk.length <= 9);
   }
+});
+
+test('escapeHtml escapes ampersand, less-than, and greater-than', () => {
+  assert.equal(escapeHtml('A & B <tag> C > D'), 'A &amp; B &lt;tag&gt; C &gt; D');
 });

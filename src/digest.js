@@ -2,7 +2,7 @@ function pad2(n) {
   return String(n).padStart(2, '0');
 }
 
-function escapeHtml(text) {
+export function escapeHtml(text) {
   return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 

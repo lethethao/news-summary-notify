@@ -6,8 +6,8 @@ import { fetchYoutubeChannelFeed } from './src/youtubeFeed.js';
 import { createDb } from './src/db.js';
 import { cleanDescription } from './src/textClean.js';
 import { createOverviewSummarizer } from './src/overview.js';
-import { buildDigestText } from './src/digest.js';
-import { sendDigest, sendAlert, sendTelegramMessage } from './src/telegram.js';
+import { buildDigestText, escapeHtml } from './src/digest.js';
+import { sendDigest, sendAlert } from './src/telegram.js';
 import { startOfDayVN, vnDateKey, isFirstDayOfMonthVN, previousMonthKey } from './src/time.js';
 
 async function handleMonthlyOverview(config, db, overviewSummarizer, now) {
@@ -30,11 +30,9 @@ async function handleMonthlyOverview(config, db, overviewSummarizer, now) {
   }
 
   try {
-    await sendTelegramMessage({
-      botToken: config.telegramBotToken,
-      chatId: config.telegramChatId,
-      text: `📅 Tổng quan tháng ${monthKey}\n\n${text}`,
-    });
+    const monthLabel = monthKey.replace(/^(\d{4})-(\d{2})$/, '$2/$1');
+    const monthlyText = `📅 Tổng quan tháng ${monthLabel}\n\n${escapeHtml(text)}`;
+    await sendDigest(config, monthlyText);
     db.markMonthlyOverviewSent(monthKey);
     return { failed: false };
   } catch (err) {
