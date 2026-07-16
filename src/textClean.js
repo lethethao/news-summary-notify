@@ -8,9 +8,14 @@ const WORD_BOUNDARY_KEYWORDS = [
 ];
 const SUBSTRING_KEYWORDS = ['đăng ký kênh', 'tải app'];
 
-const WORD_BOUNDARY_PATTERNS = WORD_BOUNDARY_KEYWORDS.map(
-  (keyword) => new RegExp(`\\b${keyword.replace(/\s+/g, '\\s+')}\\b`, 'i')
-);
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+const WORD_BOUNDARY_PATTERNS = WORD_BOUNDARY_KEYWORDS.map((keyword) => {
+  const escaped = escapeRegExp(keyword).replace(/ /g, '\\s+');
+  return new RegExp(`\\b${escaped}\\b`, 'i');
+});
 
 function containsAdKeyword(segment) {
   const lower = segment.toLowerCase();

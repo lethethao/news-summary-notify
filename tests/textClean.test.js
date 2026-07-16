@@ -46,3 +46,10 @@ test('cleanDescription removes only the ad-laden sentence from a single-line des
   const input = 'Video nói về kinh tế Việt Nam. Theo dõi Facebook để cập nhật tin tức mới nhất.';
   assert.equal(cleanDescription(input), 'Video nói về kinh tế Việt Nam.');
 });
+
+test('cleanDescription does not treat the fb.com keyword\'s dot as a wildcard', () => {
+  assert.equal(
+    cleanDescription('Đây là fbXcom không phải quảng cáo.'),
+    'Đây là fbXcom không phải quảng cáo.'
+  );
+});
