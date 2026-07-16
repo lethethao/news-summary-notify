@@ -6,6 +6,13 @@ export function escapeHtml(text) {
   return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function linkifyReferences(escapedText, references = []) {
+  return escapedText.replace(/\[(\d+)\]/g, (match, numStr) => {
+    const link = references[Number(numStr) - 1];
+    return link ? `<a href="${link}">${numStr}</a>` : match;
+  });
+}
+
 export function buildDigestText({ items, dailyOverview = null, monthlyOverviewError = false, now = new Date() }) {
   const dateLabel = `${pad2(now.getDate())}/${pad2(now.getMonth() + 1)}`;
   const header = `📰 Tổng hợp tin mới (${dateLabel} - 4 tiếng qua)`;
@@ -19,7 +26,9 @@ export function buildDigestText({ items, dailyOverview = null, monthlyOverviewEr
   if (dailyOverview && dailyOverview.failed) {
     sections.push('⚠️ Không tạo được tổng quan trong ngày (lỗi API)');
   } else if (dailyOverview && dailyOverview.text) {
-    sections.push(`🔎 Tổng quan trong ngày:\n${escapeHtml(dailyOverview.text)}`);
+    const escaped = escapeHtml(dailyOverview.text);
+    const linked = linkifyReferences(escaped, dailyOverview.references);
+    sections.push(`🔎 Tổng quan trong ngày:\n${linked}`);
   }
 
   const itemLines = items

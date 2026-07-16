@@ -48,6 +48,59 @@ test('buildDigestText inserts a warning when the monthly overview failed', () =>
   assert.ok(text.includes('⚠️ Không tạo được tổng quan tháng trước (lỗi API)'));
 });
 
+test('buildDigestText linkifies valid citation numbers in the daily overview using references', () => {
+  const items = [{ title: 'T', link: 'https://a.example/1', sourceName: 'S' }];
+  const text = buildDigestText({
+    items,
+    dailyOverview: {
+      text: '• Chủ đề A [1][2]\n• Chủ đề B [3]',
+      references: ['https://ref.example/1', 'https://ref.example/2', 'https://ref.example/3'],
+    },
+    now: new Date(2026, 6, 13),
+  });
+  assert.ok(text.includes('• Chủ đề A <a href="https://ref.example/1">1</a><a href="https://ref.example/2">2</a>'));
+  assert.ok(text.includes('• Chủ đề B <a href="https://ref.example/3">3</a>'));
+});
+
+test('buildDigestText leaves out-of-range or missing-link citations as plain text', () => {
+  const items = [{ title: 'T', link: 'https://a.example/1', sourceName: 'S' }];
+  const text = buildDigestText({
+    items,
+    dailyOverview: {
+      text: '• Chủ đề A [1][9]',
+      references: ['https://ref.example/1'],
+    },
+    now: new Date(2026, 6, 13),
+  });
+  assert.ok(text.includes('<a href="https://ref.example/1">1</a>'));
+  assert.ok(text.includes('[9]'));
+  assert.ok(!text.includes('href="undefined"'));
+});
+
+test('buildDigestText escapes overview text before linkifying, so injected anchor tags are not double-escaped', () => {
+  const items = [{ title: 'T', link: 'https://a.example/1', sourceName: 'S' }];
+  const text = buildDigestText({
+    items,
+    dailyOverview: {
+      text: 'A & B [1]',
+      references: ['https://ref.example/1'],
+    },
+    now: new Date(2026, 6, 13),
+  });
+  assert.ok(text.includes('A &amp; B <a href="https://ref.example/1">1</a>'));
+  assert.ok(!text.includes('&amp;lt;a'));
+});
+
+test('buildDigestText renders citation numbers as literal text when references is missing', () => {
+  const items = [{ title: 'T', link: 'https://a.example/1', sourceName: 'S' }];
+  const text = buildDigestText({
+    items,
+    dailyOverview: { text: '• Chủ đề A [1]' },
+    now: new Date(2026, 6, 13),
+  });
+  assert.ok(text.includes('• Chủ đề A [1]'));
+});
+
 test('splitDigestMessages returns the whole text as one chunk when under the limit', () => {
   const text = 'line1\nline2';
   assert.deepEqual(splitDigestMessages(text, 4096), ['line1\nline2']);
