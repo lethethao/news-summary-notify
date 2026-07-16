@@ -36,10 +36,10 @@ export function createDb(dbPath) {
     CREATE TABLE IF NOT EXISTS monthly_overviews (
       month TEXT PRIMARY KEY,
       overview_text TEXT NOT NULL,
-      sent INTEGER NOT NULL DEFAULT 0,
       created_at INTEGER NOT NULL
     )
   `);
+  ensureColumn(db, 'monthly_overviews', 'sent', 'INTEGER NOT NULL DEFAULT 0');
 
   const isSeenStmt = db.prepare('SELECT 1 FROM seen_items WHERE id = ?');
   const markSeenStmt = db.prepare(
