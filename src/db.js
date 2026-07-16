@@ -24,6 +24,7 @@ export function createDb(dbPath) {
   `);
   ensureColumn(db, 'seen_items', 'title', 'TEXT');
   ensureColumn(db, 'seen_items', 'description', 'TEXT');
+  ensureColumn(db, 'seen_items', 'link', 'TEXT');
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS daily_overviews (
@@ -43,10 +44,10 @@ export function createDb(dbPath) {
 
   const isSeenStmt = db.prepare('SELECT 1 FROM seen_items WHERE id = ?');
   const markSeenStmt = db.prepare(
-    'INSERT OR IGNORE INTO seen_items (id, source_name, seen_at, title, description) VALUES (?, ?, ?, ?, ?)'
+    'INSERT OR IGNORE INTO seen_items (id, source_name, seen_at, title, description, link) VALUES (?, ?, ?, ?, ?, ?)'
   );
   const getTodayItemsStmt = db.prepare(
-    'SELECT source_name AS sourceName, title, description FROM seen_items WHERE seen_at >= ? AND title IS NOT NULL ORDER BY seen_at ASC'
+    'SELECT source_name AS sourceName, title, description, link FROM seen_items WHERE seen_at >= ? AND title IS NOT NULL ORDER BY seen_at ASC'
   );
   const upsertDailyOverviewStmt = db.prepare(
     'INSERT INTO daily_overviews (date, overview_text, updated_at) VALUES (?, ?, ?) ' +
@@ -65,8 +66,8 @@ export function createDb(dbPath) {
     isSeen(id) {
       return isSeenStmt.get(id) !== undefined;
     },
-    markSeen(id, sourceName, title, description, seenAt = Math.floor(Date.now() / 1000)) {
-      markSeenStmt.run(id, sourceName, seenAt, title, description);
+    markSeen(id, sourceName, title, description, link, seenAt = Math.floor(Date.now() / 1000)) {
+      markSeenStmt.run(id, sourceName, seenAt, title, description, link);
     },
     getTodayItems(sinceTs) {
       return getTodayItemsStmt.all(sinceTs).map(obj => ({...obj}));

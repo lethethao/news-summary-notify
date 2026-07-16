@@ -105,13 +105,19 @@ async function main() {
   const todayItems = db.getTodayItems(startOfDayVN(now));
   const overviewInput = [
     ...todayItems,
-    ...newItems.map((item) => ({ sourceName: item.sourceName, title: item.title, description: item.description })),
+    ...newItems.map((item) => ({
+      sourceName: item.sourceName,
+      title: item.title,
+      description: item.description,
+      link: item.link,
+    })),
   ];
 
   let dailyOverview;
   try {
     const text = await overviewSummarizer.summarizeDaily(overviewInput);
-    dailyOverview = { text };
+    const references = overviewInput.map((item) => item.link);
+    dailyOverview = { text, references };
     db.upsertDailyOverview(vnDateKey(now), text, Math.floor(Date.now() / 1000));
   } catch (err) {
     console.error('Tạo tổng quan trong ngày lỗi:', err.message);
@@ -137,7 +143,7 @@ async function main() {
 
   const seenAt = Math.floor(Date.now() / 1000);
   for (const item of newItems) {
-    db.markSeen(item.id, item.sourceName, item.title, item.description, seenAt);
+    db.markSeen(item.id, item.sourceName, item.title, item.description, item.link, seenAt);
   }
   db.close();
   console.log(`Đã gửi digest với ${newItems.length} tin mới.`);
