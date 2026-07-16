@@ -101,6 +101,22 @@ test('buildDigestText renders citation numbers as literal text when references i
   assert.ok(text.includes('• Chủ đề A [1]'));
 });
 
+test('buildDigestText prefixes each item line with its reference number when set', () => {
+  const items = [
+    { title: 'Giá vàng tăng', link: 'https://a.example/1', sourceName: 'Vietnamnet', referenceNumber: 12 },
+    { title: 'Fed giữ nguyên lãi suất', link: 'https://a.example/2', sourceName: 'Reuters', referenceNumber: 13 },
+  ];
+  const text = buildDigestText({ items, now: new Date(2026, 6, 13) });
+  assert.ok(text.includes('• [12] <a href="https://a.example/1">Giá vàng tăng (Vietnamnet)</a>'));
+  assert.ok(text.includes('• [13] <a href="https://a.example/2">Fed giữ nguyên lãi suất (Reuters)</a>'));
+});
+
+test('buildDigestText omits the reference number prefix when an item has none', () => {
+  const items = [{ title: 'T', link: 'https://a.example/1', sourceName: 'S' }];
+  const text = buildDigestText({ items, now: new Date(2026, 6, 13) });
+  assert.ok(text.includes('• <a href="https://a.example/1">T (S)</a>'));
+});
+
 test('splitDigestMessages returns the whole text as one chunk when under the limit', () => {
   const text = 'line1\nline2';
   assert.deepEqual(splitDigestMessages(text, 4096), ['line1\nline2']);

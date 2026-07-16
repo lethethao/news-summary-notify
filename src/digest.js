@@ -32,7 +32,10 @@ export function buildDigestText({ items, dailyOverview = null, monthlyOverviewEr
   }
 
   const itemLines = items
-    .map((item) => `• <a href="${item.link}">${escapeHtml(item.title)} (${escapeHtml(item.sourceName)})</a>`)
+    .map((item) => {
+      const prefix = item.referenceNumber ? `[${item.referenceNumber}] ` : '';
+      return `• ${prefix}<a href="${item.link}">${escapeHtml(item.title)} (${escapeHtml(item.sourceName)})</a>`;
+    })
     .join('\n');
   sections.push(itemLines);
 
