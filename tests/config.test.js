@@ -6,16 +6,16 @@ test('loadConfig returns all values when env is complete', () => {
   const env = {
     TELEGRAM_BOT_TOKEN: 'bot-token',
     TELEGRAM_CHAT_ID: 'chat-id',
-    GEMINI_API_KEY: 'gemini-key',
     SHEET_CSV_URL: 'https://example.com/sheet.csv',
     YOUTUBE_API_KEY: 'youtube-key',
+    GITHUB_TOKEN: 'gh-token',
   };
   const config = loadConfig(env);
   assert.equal(config.telegramBotToken, 'bot-token');
   assert.equal(config.telegramChatId, 'chat-id');
-  assert.equal(config.geminiApiKey, 'gemini-key');
   assert.equal(config.sheetCsvUrl, 'https://example.com/sheet.csv');
   assert.equal(config.youtubeApiKey, 'youtube-key');
+  assert.equal(config.githubToken, 'gh-token');
   assert.ok(config.dbPath.endsWith('data/app.db'));
 });
 
@@ -23,9 +23,9 @@ test('loadConfig uses DB_PATH override when set', () => {
   const env = {
     TELEGRAM_BOT_TOKEN: 'bot-token',
     TELEGRAM_CHAT_ID: 'chat-id',
-    GEMINI_API_KEY: 'gemini-key',
     SHEET_CSV_URL: 'https://example.com/sheet.csv',
     YOUTUBE_API_KEY: 'youtube-key',
+    GITHUB_TOKEN: 'gh-token',
     DB_PATH: '/tmp/custom.db',
   };
   const config = loadConfig(env);
@@ -40,7 +40,7 @@ test('loadConfig throws ConfigError listing missing keys', () => {
       assert.ok(err instanceof ConfigError);
       assert.deepEqual(
         err.missingKeys.sort(),
-        ['GEMINI_API_KEY', 'SHEET_CSV_URL', 'TELEGRAM_CHAT_ID', 'YOUTUBE_API_KEY'].sort()
+        ['GITHUB_TOKEN', 'SHEET_CSV_URL', 'TELEGRAM_CHAT_ID', 'YOUTUBE_API_KEY'].sort()
       );
       return true;
     }
