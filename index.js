@@ -20,12 +20,12 @@ async function handleMonthlyOverview(config, db, overviewSummarizer, now) {
 
   try {
     const text = await overviewSummarizer.summarizeMonthly(dailyOverviews, monthKey);
-    db.saveMonthlyOverview(monthKey, text, Math.floor(Date.now() / 1000));
     await sendTelegramMessage({
       botToken: config.telegramBotToken,
       chatId: config.telegramChatId,
       text: `📅 Tổng quan tháng ${monthKey}\n\n${text}`,
     });
+    db.saveMonthlyOverview(monthKey, text, Math.floor(Date.now() / 1000));
     return { failed: false };
   } catch (err) {
     console.error(`Tạo tổng quan tháng ${monthKey} lỗi:`, err.message);
