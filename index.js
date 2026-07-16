@@ -124,7 +124,13 @@ async function main() {
     dailyOverview = { failed: true };
   }
 
-  const digestItems = newItems.map((item) => ({ title: item.title, link: item.link, sourceName: item.sourceName }));
+  const referenceOffset = todayItems.length;
+  const digestItems = newItems.map((item, i) => ({
+    title: item.title,
+    link: item.link,
+    sourceName: item.sourceName,
+    referenceNumber: dailyOverview.text ? referenceOffset + i + 1 : undefined,
+  }));
   const digestText = buildDigestText({
     items: digestItems,
     dailyOverview,
