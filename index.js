@@ -13,22 +13,32 @@ import { startOfDayVN, vnDateKey, isFirstDayOfMonthVN, previousMonthKey } from '
 async function handleMonthlyOverview(config, db, overviewSummarizer, now) {
   if (!isFirstDayOfMonthVN(now)) return { failed: false };
   const monthKey = previousMonthKey(now);
-  if (db.getMonthlyOverview(monthKey) !== undefined) return { failed: false };
+  const existing = db.getMonthlyOverview(monthKey);
+  if (existing && existing.sent) return { failed: false };
 
-  const dailyOverviews = db.getDailyOverviewsForMonth(monthKey);
-  if (dailyOverviews.length === 0) return { failed: false };
+  let text = existing ? existing.text : null;
+  if (!text) {
+    const dailyOverviews = db.getDailyOverviewsForMonth(monthKey);
+    if (dailyOverviews.length === 0) return { failed: false };
+    try {
+      text = await overviewSummarizer.summarizeMonthly(dailyOverviews, monthKey);
+    } catch (err) {
+      console.error(`Tạo tổng quan tháng ${monthKey} lỗi:`, err.message);
+      return { failed: true };
+    }
+    db.saveMonthlyOverview(monthKey, text, Math.floor(Date.now() / 1000));
+  }
 
   try {
-    const text = await overviewSummarizer.summarizeMonthly(dailyOverviews, monthKey);
     await sendTelegramMessage({
       botToken: config.telegramBotToken,
       chatId: config.telegramChatId,
       text: `📅 Tổng quan tháng ${monthKey}\n\n${text}`,
     });
-    db.saveMonthlyOverview(monthKey, text, Math.floor(Date.now() / 1000));
+    db.markMonthlyOverviewSent(monthKey);
     return { failed: false };
   } catch (err) {
-    console.error(`Tạo tổng quan tháng ${monthKey} lỗi:`, err.message);
+    console.error(`Gửi tổng quan tháng ${monthKey} lỗi:`, err.message);
     return { failed: true };
   }
 }

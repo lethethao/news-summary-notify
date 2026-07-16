@@ -62,10 +62,12 @@ test('getDailyOverviewsForMonth only returns rows within that month, sorted by d
   db.close();
 });
 
-test('getMonthlyOverview returns undefined when missing, then the saved value after save', () => {
+test('getMonthlyOverview returns undefined when missing, {text, sent:false} after save, {text, sent:true} after markMonthlyOverviewSent', () => {
   const db = createDb(':memory:');
   assert.equal(db.getMonthlyOverview('2026-06'), undefined);
   db.saveMonthlyOverview('2026-06', '• tổng quan tháng 6', 1000);
-  assert.equal(db.getMonthlyOverview('2026-06'), '• tổng quan tháng 6');
+  assert.deepEqual(db.getMonthlyOverview('2026-06'), { text: '• tổng quan tháng 6', sent: false });
+  db.markMonthlyOverviewSent('2026-06');
+  assert.deepEqual(db.getMonthlyOverview('2026-06'), { text: '• tổng quan tháng 6', sent: true });
   db.close();
 });

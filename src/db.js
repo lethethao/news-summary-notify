@@ -36,6 +36,7 @@ export function createDb(dbPath) {
     CREATE TABLE IF NOT EXISTS monthly_overviews (
       month TEXT PRIMARY KEY,
       overview_text TEXT NOT NULL,
+      sent INTEGER NOT NULL DEFAULT 0,
       created_at INTEGER NOT NULL
     )
   `);
@@ -54,10 +55,11 @@ export function createDb(dbPath) {
   const getDailyOverviewsForMonthStmt = db.prepare(
     'SELECT date, overview_text AS text FROM daily_overviews WHERE date LIKE ? ORDER BY date ASC'
   );
-  const getMonthlyOverviewStmt = db.prepare('SELECT overview_text FROM monthly_overviews WHERE month = ?');
+  const getMonthlyOverviewStmt = db.prepare('SELECT overview_text, sent FROM monthly_overviews WHERE month = ?');
   const saveMonthlyOverviewStmt = db.prepare(
-    'INSERT OR REPLACE INTO monthly_overviews (month, overview_text, created_at) VALUES (?, ?, ?)'
+    'INSERT OR REPLACE INTO monthly_overviews (month, overview_text, sent, created_at) VALUES (?, ?, 0, ?)'
   );
+  const markMonthlyOverviewSentStmt = db.prepare('UPDATE monthly_overviews SET sent = 1 WHERE month = ?');
 
   return {
     isSeen(id) {
@@ -77,10 +79,13 @@ export function createDb(dbPath) {
     },
     getMonthlyOverview(monthKey) {
       const row = getMonthlyOverviewStmt.get(monthKey);
-      return row ? row.overview_text : undefined;
+      return row ? { text: row.overview_text, sent: row.sent === 1 } : undefined;
     },
     saveMonthlyOverview(monthKey, text, createdAt = Math.floor(Date.now() / 1000)) {
       saveMonthlyOverviewStmt.run(monthKey, text, createdAt);
+    },
+    markMonthlyOverviewSent(monthKey) {
+      markMonthlyOverviewSentStmt.run(monthKey);
     },
     close() {
       db.close();
