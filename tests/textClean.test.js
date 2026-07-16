@@ -34,3 +34,15 @@ test('cleanDescription returns empty string for falsy input', () => {
 test('cleanDescription returns empty string when every line is filtered out', () => {
   assert.equal(cleanDescription('Facebook: fb.com/abc'), '');
 });
+
+test('cleanDescription does not false-positive on words containing a keyword as a substring', () => {
+  assert.equal(
+    cleanDescription('Xem tin tức từ Axios về tình hình kinh tế.'),
+    'Xem tin tức từ Axios về tình hình kinh tế.'
+  );
+});
+
+test('cleanDescription removes only the ad-laden sentence from a single-line description', () => {
+  const input = 'Video nói về kinh tế Việt Nam. Theo dõi Facebook để cập nhật tin tức mới nhất.';
+  assert.equal(cleanDescription(input), 'Video nói về kinh tế Việt Nam.');
+});
