@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { startOfDayVN, vnDateKey, isFirstDayOfMonthVN, previousMonthKey } from '../src/time.js';
+import { startOfDayVN, vnDateKey, isFirstDayOfMonthVN, previousMonthKey, hourVN } from '../src/time.js';
 
 test('startOfDayVN returns 00:00 VN for a time within the VN day', () => {
   const now = new Date('2026-07-16T10:00:00Z'); // 17:00 VN same calendar day
@@ -28,4 +28,10 @@ test('previousMonthKey returns the prior month for a normal month', () => {
 test('previousMonthKey rolls back across a year boundary', () => {
   const jan1Vn = new Date('2025-12-31T17:00:00Z'); // 00:00 VN Jan 1 2026
   assert.equal(previousMonthKey(jan1Vn), '2025-12');
+});
+
+test('hourVN returns the hour (0-23) in Vietnam time, rolling over at VN midnight', () => {
+  assert.equal(hourVN(new Date('2026-07-16T05:00:00Z')), 12); // 12:00 VN same day
+  assert.equal(hourVN(new Date('2026-07-16T16:59:00Z')), 23); // 23:59 VN same day
+  assert.equal(hourVN(new Date('2026-07-16T17:00:00Z')), 0);  // 00:00 VN next day
 });

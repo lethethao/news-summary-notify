@@ -44,6 +44,20 @@ test('getTodayItems returns only items seen at or after the given timestamp, old
   db.close();
 });
 
+test('getItemsInRange returns only items within [startTs, endTs), oldest first', () => {
+  const db = createDb(':memory:');
+  db.markSeen('item-1', 'Nguồn A', 'Tiêu đề 1', 'Mô tả 1', 'https://a.example/1', 1000);
+  db.markSeen('item-2', 'Nguồn B', 'Tiêu đề 2', 'Mô tả 2', 'https://a.example/2', 2000);
+  db.markSeen('item-3', 'Nguồn C', 'Tiêu đề 3', 'Mô tả 3', 'https://a.example/3', 3000);
+  db.markSeen('item-4', 'Nguồn D', 'Tiêu đề 4', 'Mô tả 4', 'https://a.example/4', 4000);
+  const items = db.getItemsInRange(2000, 4000);
+  assert.deepEqual(items, [
+    { sourceName: 'Nguồn B', title: 'Tiêu đề 2', description: 'Mô tả 2', link: 'https://a.example/2' },
+    { sourceName: 'Nguồn C', title: 'Tiêu đề 3', description: 'Mô tả 3', link: 'https://a.example/3' },
+  ]);
+  db.close();
+});
+
 test('upsertDailyOverview inserts then overwrites for the same date', () => {
   const db = createDb(':memory:');
   db.upsertDailyOverview('2026-07-16', '• bản đầu', 1000);

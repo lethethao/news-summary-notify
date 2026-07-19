@@ -1,6 +1,6 @@
 # news-summary-notify
 
-Tự động lấy tin mới từ RSS/YouTube (danh sách nguồn trong Google Sheet), gửi digest qua Telegram mỗi 4 tiếng kèm tổng quan chủ đề nổi bật trong ngày (và tổng quan cả tháng vào ngày 1 hàng tháng) do GitHub Models tổng hợp.
+Tự động lấy tin mới từ RSS/YouTube (danh sách nguồn trong Google Sheet) mỗi giờ. Gửi danh sách tin mới qua Telegram lúc 8h/16h/20h, và gửi tổng hợp đầy đủ kèm tổng quan chủ đề nổi bật trong ngày (do GitHub Models tổng hợp) lúc 12h và 0h — cộng thêm tổng quan cả tháng vào ngày 1 hàng tháng.
 
 ## Cài đặt
 
@@ -26,7 +26,7 @@ npm test
 
 ## Chạy định kỳ tự động (khuyến nghị: GitHub Actions)
 
-Workflow `.github/workflows/news-digest.yml` chạy `node index.js` mỗi 4 tiếng qua `schedule` trigger — không cần server chạy liên tục.
+Workflow `.github/workflows/news-digest.yml` chạy `node index.js` mỗi giờ qua `schedule` trigger — không cần server chạy liên tục. Bản thân `index.js` tự quyết định mỗi lần chạy chỉ fetch tin (đa số giờ), gửi danh sách link (8h/16h/20h giờ VN), hay gửi tổng hợp AI đầy đủ (12h/0h giờ VN).
 
 Thiết lập:
 1. Vào repo trên GitHub → Settings → Secrets and variables → Actions → thêm 4 secret: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `SHEET_CSV_URL`, `YOUTUBE_API_KEY`. (`GITHUB_TOKEN` dùng token tự động của Actions, không cần tạo secret riêng.)
