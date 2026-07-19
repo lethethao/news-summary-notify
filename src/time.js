@@ -28,3 +28,7 @@ export function previousMonthKey(now = new Date()) {
   const prevMonthDate = new Date(Date.UTC(vnDate.getUTCFullYear(), vnDate.getUTCMonth() - 1, 1));
   return `${prevMonthDate.getUTCFullYear()}-${pad2(prevMonthDate.getUTCMonth() + 1)}`;
 }
+
+export function hourVN(now = new Date()) {
+  return toVnDate(now).getUTCHours();
+}
