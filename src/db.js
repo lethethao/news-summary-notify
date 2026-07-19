@@ -49,6 +49,9 @@ export function createDb(dbPath) {
   const getTodayItemsStmt = db.prepare(
     'SELECT source_name AS sourceName, title, description, link FROM seen_items WHERE seen_at >= ? AND title IS NOT NULL ORDER BY seen_at ASC'
   );
+  const getItemsInRangeStmt = db.prepare(
+    'SELECT source_name AS sourceName, title, description, link FROM seen_items WHERE seen_at >= ? AND seen_at < ? AND title IS NOT NULL ORDER BY seen_at ASC'
+  );
   const upsertDailyOverviewStmt = db.prepare(
     'INSERT INTO daily_overviews (date, overview_text, updated_at) VALUES (?, ?, ?) ' +
     'ON CONFLICT(date) DO UPDATE SET overview_text = excluded.overview_text, updated_at = excluded.updated_at'
@@ -71,6 +74,9 @@ export function createDb(dbPath) {
     },
     getTodayItems(sinceTs) {
       return getTodayItemsStmt.all(sinceTs).map(obj => ({...obj}));
+    },
+    getItemsInRange(startTs, endTs) {
+      return getItemsInRangeStmt.all(startTs, endTs).map((obj) => ({ ...obj }));
     },
     upsertDailyOverview(date, text, updatedAt = Math.floor(Date.now() / 1000)) {
       upsertDailyOverviewStmt.run(date, text, updatedAt);
